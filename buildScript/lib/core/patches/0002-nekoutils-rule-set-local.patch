@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NekoBoxForAndroid-podkop <nekobox-podkop@localhost>
+Date: Fri, 21 Nov 2026 00:00:00 +0000
+Subject: [PATCH] route/rule: resolve geoip:/geosite: local rule-sets via
+ nekoutils
+
+NekoBox for Android embeds geoip.db / geosite.db in the APK instead of
+compiling .srs rule-sets, so local rule-sets whose path starts with
+"geoip:" or "geosite:" are loaded through the hooks registered by
+libcore. Ported from the MatsuriDayo/sing-box fork (1.12.x) onto the
+podkop-engine 1.14 line.
+
+diff --git a/route/rule/rule_set_local.go b/route/rule/rule_set_local.go
+index 8e3c1a4..a7f2d6b 100644
+--- a/route/rule/rule_set_local.go
++++ b/route/rule/rule_set_local.go
+@@ -14,3 +14,4 @@
+ 	"github.com/sagernet/sing-box/common/srs"
+ 	C "github.com/sagernet/sing-box/constant"
++	"github.com/sagernet/sing-box/nekoutils"
+ 	"github.com/sagernet/sing-box/option"
+@@ -58,2 +58,24 @@
+ 	} else {
++		if strings.HasPrefix(options.LocalOptions.Path, "geoip:") {
++			rules, err := nekoutils.GetGeoIPHeadlessRules(strings.TrimPrefix(options.LocalOptions.Path, "geoip:"))
++			if err != nil {
++				return nil, err
++			}
++			err = ruleSet.reloadRules(rules)
++			if err != nil {
++				return nil, err
++			}
++			return ruleSet, nil
++		}
++		if strings.HasPrefix(options.LocalOptions.Path, "geosite:") {
++			rules, err := nekoutils.GetGeoSiteHeadlessRules(strings.TrimPrefix(options.LocalOptions.Path, "geosite:"))
++			if err != nil {
++				return nil, err
++			}
++			err = ruleSet.reloadRules(rules)
++			if err != nil {
++				return nil, err
++			}
++			return ruleSet, nil
++		}
+ 		filePath := filemanager.BasePath(ctx, strings.ReplaceAll(options.LocalOptions.Path, C.RuleSetTagPlaceholder, tag))

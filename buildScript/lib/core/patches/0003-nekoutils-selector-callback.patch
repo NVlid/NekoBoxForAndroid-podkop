@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: NekoBoxForAndroid-podkop <nekobox-podkop@localhost>
+Date: Fri, 21 Nov 2026 00:00:00 +0000
+Subject: [PATCH] group/selector: notify the app when an outbound is selected
+
+NekoBox for Android stores the selected outbound of the "proxy" group in
+its database; the hook reports every selection made by the user or by
+the core itself. Ported from the MatsuriDayo/sing-box fork (1.12.x) onto
+the podkop-engine 1.14 line.
+
+diff --git a/protocol/group/selector.go b/protocol/group/selector.go
+index 5d1c8e2..3a9b4f0 100644
+--- a/protocol/group/selector.go
++++ b/protocol/group/selector.go
+@@ -13,4 +13,5 @@
+ 	C "github.com/sagernet/sing-box/constant"
+ 	"github.com/sagernet/sing-box/log"
++	"github.com/sagernet/sing-box/nekoutils"
+ 	"github.com/sagernet/sing-box/option"
+ 	"github.com/sagernet/sing/common"
+@@ -155,6 +156,9 @@
+ 	s.interruptGroup.Interrupt(s.interruptExternalConnections)
+ 	if s.history != nil {
+ 		s.history.NotifyUpdated()
+ 	}
++	if nekoutils.Selector_OnProxySelected != nil {
++		nekoutils.Selector_OnProxySelected(s.Tag(), tag)
++	}
+ 	return true
+ }
