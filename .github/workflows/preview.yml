@@ -24,8 +24,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
-          # podkop-engine (sing-box 1.14.4 line) is released with Go 1.26.x
-          go-version: ^1.26
+          # gomobile-matsuri (master2) is incompatible with Go 1.27+
+          # (GODEBUG gotypesalias removal), so pin to the 1.26 line.
+          go-version: '1.26.x'
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: ./run lib core
