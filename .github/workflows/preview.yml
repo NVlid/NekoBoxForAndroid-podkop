@@ -10,7 +10,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Golang Status
-        run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
+        run: |
+          { find buildScript -type f -name '*.sh' ! -name assets.sh
+            find libcore -maxdepth 1 -type f -name '*.sh'; } | sort | xargs cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
@@ -39,7 +41,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Golang Status
-        run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
+        run: |
+          { find buildScript -type f -name '*.sh' ! -name assets.sh
+            find libcore -maxdepth 1 -type f -name '*.sh'; } | sort | xargs cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache

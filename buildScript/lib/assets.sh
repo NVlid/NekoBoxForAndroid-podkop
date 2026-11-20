@@ -7,22 +7,23 @@ rm -rf $DIR
 mkdir -p $DIR
 cd $DIR
 
-get_latest_release() {
-  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
-    grep '"tag_name":' |                                            # Get tag line
-    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+# Download the latest asset without GitHub API (unauthenticated API calls are
+# easy to rate-limit on shared Actions runners and return an empty tag).
+download_latest() {
+  repo="$1"
+  asset="$2"
+  final_url=$(curl -fLSs -o "$asset" -w '%{url_effective}' \
+    "https://github.com/$repo/releases/latest/download/$asset")
+  echo "$final_url" | sed -E 's#.*/download/([^/]+)/.*#\1#'
 }
 
-####
-VERSION_GEOIP=`get_latest_release "SagerNet/sing-geoip"`
+VERSION_GEOIP=$(download_latest "SagerNet/sing-geoip" "geoip.db")
 echo VERSION_GEOIP=$VERSION_GEOIP
 echo -n $VERSION_GEOIP > geoip.version.txt
-curl -fLSsO https://github.com/SagerNet/sing-geoip/releases/download/$VERSION_GEOIP/geoip.db
 xz -9 geoip.db
 
 ####
-VERSION_GEOSITE=`get_latest_release "SagerNet/sing-geosite"`
+VERSION_GEOSITE=$(download_latest "SagerNet/sing-geosite" "geosite.db")
 echo VERSION_GEOSITE=$VERSION_GEOSITE
 echo -n $VERSION_GEOSITE > geosite.version.txt
-curl -fLSsO https://github.com/SagerNet/sing-geosite/releases/download/$VERSION_GEOSITE/geosite.db
 xz -9 geosite.db
