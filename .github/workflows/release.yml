@@ -17,21 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Golang Status
         run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: |
             app/libs/libcore.aar
           key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}
       - name: Install Golang
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           # podkop-engine (sing-box 1.14.4 line) is released with Go 1.26.x
           go-version: ^1.26
@@ -45,19 +45,19 @@ jobs:
       - libcore
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Golang Status
         run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: |
             app/libs/libcore.aar
           key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}
       - name: Gradle cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.gradle
           key: gradle-oss-${{ hashFiles('**/*.gradle.kts') }}
@@ -73,7 +73,7 @@ jobs:
           APK=$(find app/build/outputs/apk -name '*arm64-v8a*.apk')
           APK=$(dirname $APK)
           echo "APK=$APK" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: APKs
           path: ${{ env.APK }}
@@ -84,9 +84,9 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Donwload Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: APKs
           path: artifacts
@@ -106,19 +106,19 @@ jobs:
       - libcore
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Golang Status
         run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
       - name: Libcore Status
         run: git ls-files libcore | xargs cat | sha1sum > libcore_status
       - name: LibCore Cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: |
             app/libs/libcore.aar
           key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}
       - name: Gradle cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.gradle
           key: gradle-play-${{ hashFiles('**/*.gradle.kts') }}
@@ -132,7 +132,7 @@ jobs:
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
           ./gradlew bundlePlayRelease
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: AAB
           path: app/build/outputs/bundle/playRelease/app-play-release.aab
