@@ -444,6 +444,13 @@
 <string name="subscription_update_message">Обновление %s …</string>
 <string name="subscription_used">%s Использовано</string>
 <string name="subscription_user_agent">UserAgent</string>
+<string name="subscription_device_settings">Устройство при загрузке подписок</string>
+<string name="subscription_hwid">HWID</string>
+<string name="subscription_hwid_summary">Отправляется в X-HWID. Оставьте пустым для генерации и сохранения случайного идентификатора.</string>
+<string name="subscription_device_name">Название устройства</string>
+<string name="subscription_device_name_summary">Отправляется в X-Device-Model. Оставьте пустым, чтобы использовать настоящую модель Android.</string>
+<string name="subscription_hwid_invalid">HWID должен содержать 10–64 символа: только латинские буквы, цифры, знаки равенства и дефисы.</string>
+<string name="subscription_device_name_invalid">Название устройства должно содержать не более 64 символов и не должно содержать переводы строки.</string>
 <string name="subscriptions">Подписки</string>
 <string name="tcp_connections">%d TCP-соединений</string>
 <string name="tcp_keep_alive_interval">Интервал доставки пакетов TCP keep-alive</string>

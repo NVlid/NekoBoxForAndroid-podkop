@@ -77,6 +77,8 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         val directDns = findPreference<EditTextPreference>(Key.DIRECT_DNS)!!
         val enableDnsRouting = findPreference<SwitchPreference>(Key.ENABLE_DNS_ROUTING)!!
         val enableFakeDns = findPreference<SwitchPreference>(Key.ENABLE_FAKEDNS)!!
+        val subscriptionHwid = findPreference<EditTextPreference>(Key.SUBSCRIPTION_HWID)!!
+        val subscriptionDeviceName = findPreference<EditTextPreference>(Key.SUBSCRIPTION_DEVICE_NAME)!!
 
         val logLevel = findPreference<LongClickListPreference>(Key.LOG_LEVEL)!!
         val mtu = findPreference<MTUPreference>(Key.MTU)!!
@@ -167,6 +169,33 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         resolveDestination.onPreferenceChangeListener = reloadListener
         tunImplementation.onPreferenceChangeListener = reloadListener
         acquireWakeLock.onPreferenceChangeListener = reloadListener
+
+        val hwidPattern = Regex("^[a-zA-Z0-9=-]{10,64}$")
+        subscriptionHwid.setOnPreferenceChangeListener { _, newValue ->
+            val value = newValue.toString().trim()
+            if (value.isNotEmpty() && !hwidPattern.matches(value)) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(R.string.subscription_hwid_invalid)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                false
+            } else {
+                true
+            }
+        }
+        subscriptionDeviceName.setOnPreferenceChangeListener { _, newValue ->
+            val value = newValue.toString().trim()
+            if (value.length > 64 || value.contains('\n') || value.contains('\r')) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(R.string.subscription_device_name_invalid)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                false
+            } else {
+                true
+            }
+        }
+
         globalCustomConfig.onPreferenceChangeListener = reloadListener
     }
 

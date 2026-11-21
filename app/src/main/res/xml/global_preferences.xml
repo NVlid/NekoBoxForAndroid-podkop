@@ -206,6 +206,19 @@
             app:title="@string/allow_access" />
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/subscription_device_settings">
+        <EditTextPreference
+            app:icon="@drawable/ic_communication_phonelink_ring"
+            app:key="subscriptionHwid"
+            app:summary="@string/subscription_hwid_summary"
+            app:title="@string/subscription_hwid" />
+        <EditTextPreference
+            app:icon="@drawable/ic_device_developer_mode"
+            app:key="subscriptionDeviceName"
+            app:summary="@string/subscription_device_name_summary"
+            app:title="@string/subscription_device_name" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/cag_misc">
         <moe.matsuri.nb4a.ui.UrlTestPreference
             app:defaultValue="http://cp.cloudflare.com/"

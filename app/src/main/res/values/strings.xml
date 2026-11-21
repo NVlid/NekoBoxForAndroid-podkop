@@ -358,6 +358,13 @@
     <string name="update_when_connected_only">Update only when connected</string>
     <string name="update_when_connected_only_sum">Prevent IP address leakage</string>
     <string name="subscription_user_agent">UserAgent</string>
+    <string name="subscription_device_settings">Subscription device identity</string>
+    <string name="subscription_hwid">HWID</string>
+    <string name="subscription_hwid_summary">Sent as X-HWID. Leave empty to generate and save a random identifier.</string>
+    <string name="subscription_device_name">Device name</string>
+    <string name="subscription_device_name_summary">Sent as X-Device-Model. Leave empty to use the actual Android model.</string>
+    <string name="subscription_hwid_invalid">HWID must contain 10–64 Latin letters, digits, equals signs or hyphens.</string>
+    <string name="subscription_device_name_invalid">Device name must be at most 64 characters and cannot contain line breaks.</string>
     <string name="confirm">Confirm</string>
     <string name="missing_plugin">Missing Plugin</string>
     <string name="profile_requiring_plugin">Profile %s requires the %s plugin to be installed, but

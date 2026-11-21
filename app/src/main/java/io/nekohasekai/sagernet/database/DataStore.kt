@@ -1,6 +1,7 @@
 package io.nekohasekai.sagernet.database
 
 import android.os.Binder
+import android.os.Build
 import androidx.preference.PreferenceDataStore
 import io.nekohasekai.sagernet.CONNECTION_TEST_URL
 import io.nekohasekai.sagernet.GroupType
@@ -20,6 +21,7 @@ import io.nekohasekai.sagernet.ktx.string
 import io.nekohasekai.sagernet.ktx.stringToInt
 import io.nekohasekai.sagernet.ktx.stringToIntIfExists
 import moe.matsuri.nb4a.TempDatabase
+import java.util.UUID
 
 object DataStore : OnPreferenceDataStoreChangeListener {
 
@@ -163,6 +165,19 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var profileTrafficStatistics by configurationStore.boolean(Key.PROFILE_TRAFFIC_STATISTICS) { true }
 
     var yacdURL by configurationStore.string("yacdURL") { "http://127.0.0.1:9090/ui" }
+
+    var subscriptionHwid by configurationStore.string(Key.SUBSCRIPTION_HWID) { "" }
+    var subscriptionDeviceName by configurationStore.string(Key.SUBSCRIPTION_DEVICE_NAME) { "" }
+
+    @Synchronized
+    fun effectiveSubscriptionHwid(): String {
+        subscriptionHwid.trim().takeIf { it.isNotEmpty() }?.let { return it }
+        return UUID.randomUUID().toString().also { subscriptionHwid = it }
+    }
+
+    fun effectiveSubscriptionDeviceName(): String {
+        return subscriptionDeviceName.trim().ifEmpty { Build.MODEL }
+    }
 
     // protocol
 

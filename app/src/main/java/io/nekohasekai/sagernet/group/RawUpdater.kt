@@ -1,6 +1,7 @@
 package io.nekohasekai.sagernet.group
 
 import android.annotation.SuppressLint
+import android.os.Build
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.database.*
 import io.nekohasekai.sagernet.fmt.AbstractBean
@@ -68,6 +69,10 @@ object RawUpdater : GroupUpdater() {
                 }
                 setURL(subscription.link)
                 setUserAgent(subscription.customUserAgent.takeIf { it.isNotBlank() } ?: USER_AGENT)
+                setHeader("X-HWID", DataStore.effectiveSubscriptionHwid())
+                setHeader("X-Device-OS", "Android")
+                setHeader("X-Ver-OS", Build.VERSION.RELEASE)
+                setHeader("X-Device-Model", DataStore.effectiveSubscriptionDeviceName())
             }.execute()
             proxies = parseRaw(Util.getStringBox(response.contentString))
                 ?: error(app.getString(R.string.no_proxies_found))

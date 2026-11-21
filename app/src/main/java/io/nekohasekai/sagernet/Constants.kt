@@ -145,6 +145,8 @@ object Key {
     const val SUBSCRIPTION_UPDATE = "subscriptionUpdate"
     const val SUBSCRIPTION_UPDATE_WHEN_CONNECTED_ONLY = "subscriptionUpdateWhenConnectedOnly"
     const val SUBSCRIPTION_USER_AGENT = "subscriptionUserAgent"
+    const val SUBSCRIPTION_HWID = "subscriptionHwid"
+    const val SUBSCRIPTION_DEVICE_NAME = "subscriptionDeviceName"
     const val SUBSCRIPTION_AUTO_UPDATE = "subscriptionAutoUpdate"
     const val SUBSCRIPTION_AUTO_UPDATE_DELAY = "subscriptionAutoUpdateDelay"
 
