@@ -12,7 +12,7 @@ import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.bg.AutoUrlTester
 import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
-import moe.matsuri.nb4a.ui.FixedLinearLayoutManager
+import io.nekohasekai.sagernet.ktx.FixedLinearLayoutManager
 
 class AutoUrlTestPreferenceFragment : PreferenceFragmentCompat() {
 
