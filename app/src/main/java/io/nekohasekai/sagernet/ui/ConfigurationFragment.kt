@@ -615,15 +615,15 @@ class ConfigurationFragment @JvmOverloads constructor(
         var proxyN = 0
         val finishedN = AtomicInteger(0)
 
-        fun update(profile: ProxyEntity) {
-            if (dialogStatus.get() != 2) {
+        fun update(profile: ProxyEntity, finished: Boolean = true) {
+            if (finished && dialogStatus.get() != 2) {
                 results.add(profile)
             }
             runOnMainDispatcher {
                 val context = context ?: return@runOnMainDispatcher
-                val progress = finishedN.addAndGet(1)
+                val progress = if (finished) finishedN.addAndGet(1) else finishedN.get()
                 val status = dialogStatus.get()
-                notification?.updateNotification(
+                if (finished) notification?.updateNotification(
                     progress,
                     proxyN,
                     progress >= proxyN || status == 2
@@ -719,6 +719,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                         val profile = profiles.poll() ?: break
 
                         profile.status = 0
+                        test.update(profile, finished = false)
                         var address = profile.requireBean().serverAddress
                         if (!address.isIpAddress()) {
                             try {
@@ -849,6 +850,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                     while (isActive) {
                         val profile = profiles.poll() ?: break
                         profile.status = 0
+                        test.update(profile, finished = false)
 
                         try {
                             val result = urlTest.doTest(profile)

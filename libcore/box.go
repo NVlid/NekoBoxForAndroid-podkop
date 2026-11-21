@@ -86,7 +86,18 @@ type BoxInstance struct {
 	pauseManager pause.Manager
 }
 
-func NewSingBoxInstance(config string, localTransport LocalDNSTransport) (b *BoxInstance, err error) {
+func NewSingBoxInstance(config string, localTransport LocalDNSTransport) (*BoxInstance, error) {
+	return newSingBoxInstance(config, localTransport, false)
+}
+
+// NewSingBoxInstanceForTest creates an isolated URL-test instance without the
+// persistent cache file. Tests run concurrently and must not lock the main
+// instance's cache.db through bbolt's file lock.
+func NewSingBoxInstanceForTest(config string, localTransport LocalDNSTransport) (*BoxInstance, error) {
+	return newSingBoxInstance(config, localTransport, true)
+}
+
+func newSingBoxInstance(config string, localTransport LocalDNSTransport, forTest bool) (b *BoxInstance, err error) {
 	defer device.DeferPanicToError("NewSingBoxInstance", func(err_ error) { err = err_ })
 
 	// create box context
@@ -108,11 +119,21 @@ func NewSingBoxInstance(config string, localTransport LocalDNSTransport) (b *Box
 	}
 
 	// create box
-	instance, err := box.New(box.Options{
-		Options:           options,
-		Context:           ctx,
-		PlatformLogWriter: boxPlatformLogWriter,
-	})
+	boxOptions := box.Options{
+		Options: options,
+		Context: ctx,
+	}
+	if forTest {
+		// A platform log writer makes sing-box create cache.db even when the
+		// configuration has no experimental.cache_file block.
+		if options.Experimental != nil {
+			options.Experimental.CacheFile = nil
+		}
+		boxOptions.Options = options
+	} else {
+		boxOptions.PlatformLogWriter = boxPlatformLogWriter
+	}
+	instance, err := box.New(boxOptions)
 	if err != nil {
 		cancel()
 		return nil, fmt.Errorf("create service: %v", err)
