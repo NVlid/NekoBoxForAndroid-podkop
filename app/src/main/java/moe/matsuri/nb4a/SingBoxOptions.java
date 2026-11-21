@@ -336,16 +336,18 @@ public class SingBoxOptions {
 
         public Boolean reverse_mapping;
 
-        public DNSFakeIPOptions fakeip;
-
         // Generate note: nested type DNSClientOptions
         public String strategy;
+
+        public Long timeout;
 
         public Boolean disable_cache;
 
         public Boolean disable_expire;
 
-        public Boolean independent_cache;
+        public Long cache_capacity;
+
+        public Boolean ipv6_if_no_ipv4;
 
         // End of public DNSClientOptions ;
 
@@ -353,19 +355,47 @@ public class SingBoxOptions {
 
     public static class DNSServerOptions extends SingBoxOption {
 
+        public String type;
+
         public String tag;
 
-        public String address;
+        public String server;
 
-        public String address_resolver;
+        public Integer server_port;
 
-        public String address_strategy;
+        public String path;
 
-        public Long address_fallback_delay;
+        public String method;
+
+        public String detour;
+
+        public String domain_resolver;
+
+        @SerializedName("interface")
+        public String interface_;
+
+        public String inet4_range;
+
+        public String inet6_range;
+
+        // tls
+        public Boolean insecure;
+
+        public String server_name;
+
+    }
+
+    public static class DomainResolveOptions extends SingBoxOption {
+
+        public String server;
+
+        public Long timeout;
 
         public String strategy;
 
-        public String detour;
+        public Boolean disable_cache;
+
+        public Integer rewrite_ttl;
 
     }
 
@@ -373,21 +403,15 @@ public class SingBoxOptions {
 
         public String strategy;
 
+        public Long timeout;
+
         public Boolean disable_cache;
 
         public Boolean disable_expire;
 
-        public Boolean independent_cache;
+        public Long cache_capacity;
 
-    }
-
-    public static class DNSFakeIPOptions extends SingBoxOption {
-
-        public Boolean enabled;
-
-        public String inet4_range;
-
-        public String inet6_range;
+        public Boolean ipv6_if_no_ipv4;
 
     }
 
@@ -1086,6 +1110,8 @@ public class SingBoxOptions {
         public String default_interface;
 
         public Integer default_mark;
+
+        public DomainResolveOptions default_domain_resolver;
 
     }
 
@@ -4583,7 +4609,13 @@ public class SingBoxOptions {
 
         public Boolean invert;
 
+        public String action;
+
         public String server;
+
+        public String strategy;
+
+        public String rcode;
 
         public Boolean disable_cache;
 

@@ -177,7 +177,6 @@ fun buildConfig(
         dns = DNSOptions().apply {
             servers = mutableListOf()
             rules = mutableListOf()
-            independent_cache = true
         }
 
         fun autoDnsDomainStrategy(s: String): String? {
@@ -568,8 +567,8 @@ fun buildConfig(
 
                     -2L -> {
                         userDNSRuleList += makeDnsRuleObj().apply {
-                            server = "dns-block"
-                            disable_cache = true
+                            action = "predefined"
+                            rcode = "NOERROR"
                         }
                     }
                 }
@@ -642,38 +641,30 @@ fun buildConfig(
             }
         }
 
-        dns.servers.add(DNSServerOptions().apply {
-            address = "rcode://success"
-            tag = "dns-block"
-        })
+        dns.servers.add(buildDnsServerOptions("dns-local", "local", TAG_DIRECT))
 
-        dns.servers.add(DNSServerOptions().apply {
-            address = "local"
-            tag = "dns-local"
-            detour = TAG_DIRECT
-        })
+        dns.servers.add(buildDnsServerOptions(
+            "dns-direct",
+            directDNS.firstOrNull() ?: throw Exception("No direct DNS, check your settings!"),
+            TAG_DIRECT,
+            "dns-local"
+        ))
 
-        directDNS.firstOrNull().let {
-            dns.servers.add(DNSServerOptions().apply {
-                address = it ?: throw Exception("No direct DNS, check your settings!")
-                tag = "dns-direct"
-                detour = TAG_DIRECT
-                address_resolver = "dns-local"
-                strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
-            })
-        }
+        // Always use direct DNS for urlTest
+        if (!forTest) dns.servers.add(buildDnsServerOptions(
+            "dns-remote",
+            remoteDns.firstOrNull() ?: throw Exception("No remote DNS, check your settings!"),
+            domainResolver = "dns-direct"
+        ))
 
-        remoteDns.firstOrNull().let {
-            // Always use direct DNS for urlTest
-            if (!forTest) dns.servers.add(DNSServerOptions().apply {
-                address = it ?: throw Exception("No remote DNS, check your settings!")
-                tag = "dns-remote"
-                address_resolver = "dns-direct"
-                strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy(tag))
-            })
-        }
+        dns.strategy = autoDnsDomainStrategy(SingBoxOptionsUtil.domainStrategy("dns-remote"))
 
         dns.final_ = if (forTest) "dns-direct" else "dns-remote"
+
+        // Replaces the legacy DNS rule { outbound: ["any"], server: "dns-direct" }
+        route.default_domain_resolver = DomainResolveOptions().apply {
+            server = "dns-direct"
+        }
 
         // dns object user rules
         if (enableDnsRouting) {
@@ -706,29 +697,21 @@ fun buildConfig(
                 source_ip_cidr = listOf("224.0.0.0/3", "ff00::/8")
                 action = "reject"
             })
-            // FakeDNS obj
+            // FakeDNS
             if (useFakeDns) {
-                dns.fakeip = DNSFakeIPOptions().apply {
-                    enabled = true
+                dns.servers.add(DNSServerOptions().apply {
+                    type = "fakeip"
+                    tag = "dns-fake"
                     inet4_range = "198.18.0.0/15"
                     inet6_range = "fc00::/18"
-                }
-                dns.servers.add(DNSServerOptions().apply {
-                    address = "fakeip"
-                    tag = "dns-fake"
-                    strategy = "ipv4_only"
                 })
                 dns.rules.add(DNSRule_DefaultOptions().apply {
                     inbound = listOf("tun-in")
+                    query_type = listOf("A", "AAAA")
                     server = "dns-fake"
                     disable_cache = true
                 })
             }
-            // avoid loopback
-            dns.rules.add(0, DNSRule_DefaultOptions().apply {
-                outbound = mutableListOf("any")
-                server = "dns-direct"
-            })
             // force bypass (always top DNS rule)
             if (domainListDNSDirectForce.isNotEmpty()) {
                 dns.rules.add(0, DNSRule_DefaultOptions().apply {
@@ -752,4 +735,99 @@ fun buildConfig(
         )
     }
 
+}
+
+/**
+ * Builds a sing-box 1.12+ DNS server from the legacy address format
+ * stored in the settings (local, fakeip, 1.1.1.1, tls://, https://, ...).
+ */
+private fun buildDnsServerOptions(
+    tag: String,
+    rawAddress: String,
+    detour: String? = null,
+    domainResolver: String? = null
+): DNSServerOptions {
+    var address = rawAddress.trim()
+    var scheme = ""
+    val schemeIndex = address.indexOf("://")
+    if (schemeIndex >= 0) {
+        scheme = address.substring(0, schemeIndex).lowercase()
+        address = address.substring(schemeIndex + 3)
+    }
+    if (scheme.isEmpty()) {
+        scheme = when (address) {
+            "local" -> "local"
+            "fakeip" -> "fakeip"
+            "dhcp" -> "dhcp"
+            else -> "udp"
+        }
+    }
+
+    val options = DNSServerOptions().apply {
+        this.tag = tag
+        this.detour = detour
+        this.domain_resolver = domainResolver
+    }
+
+    when (scheme) {
+        "local" -> {
+            options.type = "local"
+            return options
+        }
+
+        "fakeip" -> {
+            options.type = "fakeip"
+            options.inet4_range = "198.18.0.0/15"
+            options.inet6_range = "fc00::/18"
+            return options
+        }
+
+        "dhcp" -> {
+            options.type = "dhcp"
+            val dhcpInterface = address.trim('/')
+            if (dhcpInterface.isNotEmpty() && dhcpInterface != "auto") {
+                options.interface_ = dhcpInterface
+            }
+            return options
+        }
+    }
+
+    var host = address
+    var path: String? = null
+    val slashIndex = host.indexOf('/')
+    if (slashIndex >= 0) {
+        path = host.substring(slashIndex)
+        host = host.substring(0, slashIndex)
+    }
+
+    var port = 0
+    if (host.startsWith("[")) {
+        val end = host.indexOf(']')
+        if (end > 0) {
+            port = host.substring(end + 1).removePrefix(":").toIntOrNull() ?: 0
+            host = host.substring(1, end)
+        }
+    } else if (host.count { it == ':' } == 1) {
+        port = host.substringAfter(':').toIntOrNull() ?: 0
+        host = host.substringBefore(':')
+    }
+
+    options.type = when (scheme) {
+        "tcp" -> "tcp"
+        "tls" -> "tls"
+        "https" -> "https"
+        "quic" -> "quic"
+        "h3" -> "h3"
+        else -> "udp"
+    }
+    options.server = host
+    options.server_port = if (port != 0) port else when (options.type) {
+        "tls", "quic" -> 853
+        "https", "h3" -> 443
+        else -> 53
+    }
+    if (options.type == "https" || options.type == "h3") {
+        options.path = path ?: "/dns-query"
+    }
+    return options
 }
