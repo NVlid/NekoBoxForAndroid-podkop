@@ -331,6 +331,14 @@
     <string name="connection_test_icmp_ping" translatable="false">ICMPing</string>
     <string name="connection_test_icmp_ping_unavailable">ICMPing unavailable</string>
     <string name="connection_test_url_test" translatable="false">URL Test</string>
+    <string name="auto_url_test_settings">Automatic URL ping</string>
+    <string name="auto_url_test_enabled">Periodic URL ping</string>
+    <string name="auto_url_test_enabled_summary">Test all profiles in the background</string>
+    <string name="auto_url_test_interval">Test interval (minutes)</string>
+    <string name="auto_url_test_interval_summary">From 15 to 1440 minutes. Default: 60</string>
+    <string name="auto_url_test_interval_invalid">Enter a value from 15 to 1440 minutes.</string>
+    <string name="auto_select_best_profile">Auto-select lowest-latency profile</string>
+    <string name="auto_select_best_profile_summary">After each test, select the profile with the lowest successful URL latency</string>
     <string name="connection_test_domain_not_found">Domain not found</string>
     <string name="connection_test_refused">Connection refused</string>
     <string name="connection_test_unreachable">Unreachable</string>

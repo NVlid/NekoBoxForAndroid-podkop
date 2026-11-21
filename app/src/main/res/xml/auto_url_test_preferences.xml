@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="@string/auto_url_test_settings">
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_speed_24"
+            app:key="autoUrlTestEnabled"
+            app:summary="@string/auto_url_test_enabled_summary"
+            app:title="@string/auto_url_test_enabled" />
+        <EditTextPreference
+            app:defaultValue="60"
+            app:icon="@drawable/ic_baseline_timelapse_24"
+            app:key="autoUrlTestInterval"
+            app:summary="@string/auto_url_test_interval_summary"
+            app:title="@string/auto_url_test_interval" />
+        <SwitchPreference
+            app:defaultValue="false"
+            app:icon="@drawable/ic_baseline_center_focus_weak_24"
+            app:key="autoSelectBestProfile"
+            app:summary="@string/auto_select_best_profile_summary"
+            app:title="@string/auto_select_best_profile" />
+    </PreferenceCategory>
+</PreferenceScreen>

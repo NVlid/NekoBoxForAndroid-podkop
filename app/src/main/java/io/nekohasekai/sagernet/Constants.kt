@@ -44,6 +44,9 @@ object Key {
     const val APPEND_HTTP_PROXY = "appendHttpProxy"
 
     const val CONNECTION_TEST_URL = "connectionTestURL"
+    const val AUTO_URL_TEST_ENABLED = "autoUrlTestEnabled"
+    const val AUTO_URL_TEST_INTERVAL = "autoUrlTestInterval"
+    const val AUTO_SELECT_BEST_PROFILE = "autoSelectBestProfile"
 
     const val NETWORK_CHANGE_RESET_CONNECTIONS = "networkChangeResetConnections"
     const val WAKE_RESET_CONNECTIONS = "wakeResetConnections"

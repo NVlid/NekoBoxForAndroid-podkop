@@ -108,6 +108,14 @@
 <string name="connection_test_unreachable">Недоступен</string>
 <string name="connection_test_url">URL-адрес проверки подключения</string>
 <string name="connection_test_url_test">URL Тест</string>
+<string name="auto_url_test_settings">Автоматический URL-пинг</string>
+<string name="auto_url_test_enabled">Периодический URL-пинг</string>
+<string name="auto_url_test_enabled_summary">Проверять все серверы в фоновом режиме</string>
+<string name="auto_url_test_interval">Период проверки (минуты)</string>
+<string name="auto_url_test_interval_summary">От 15 до 1440 минут. По умолчанию: 60</string>
+<string name="auto_url_test_interval_invalid">Введите значение от 15 до 1440 минут.</string>
+<string name="auto_select_best_profile">Авто-выбор профиля с минимальным пингом</string>
+<string name="auto_select_best_profile_summary">После каждой проверки выбирать профиль с наименьшим успешным URL-пингом</string>
 <string name="copy">Копировать</string>
 <string name="copy_toast_msg">Ссылка скопирована в буфер обмена.</string>
 <string name="create_shortcut">Создать ярлык</string>
