@@ -658,13 +658,12 @@ fun buildConfig(
             }
         }
 
-        dns.servers.add(buildDnsServerOptions("dns-local", "local", TAG_DIRECT))
+        dns.servers.add(buildDnsServerOptions("dns-local", "local"))
 
         dns.servers.add(buildDnsServerOptions(
             "dns-direct",
             directDNS.firstOrNull() ?: throw Exception("No direct DNS, check your settings!"),
-            TAG_DIRECT,
-            "dns-local"
+            domainResolver = "dns-local"
         ))
 
         // Always use direct DNS for urlTest
@@ -761,7 +760,6 @@ fun buildConfig(
 private fun buildDnsServerOptions(
     tag: String,
     rawAddress: String,
-    detour: String? = null,
     domainResolver: String? = null
 ): DNSServerOptions {
     var address = rawAddress.trim()
@@ -782,7 +780,6 @@ private fun buildDnsServerOptions(
 
     val options = DNSServerOptions().apply {
         this.tag = tag
-        this.detour = detour
         this.domain_resolver = domainResolver
     }
 
