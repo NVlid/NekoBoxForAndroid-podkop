@@ -22,7 +22,7 @@ import io.nekohasekai.sagernet.fmt.tuic.buildSingBoxOutboundTuicBean
 import io.nekohasekai.sagernet.fmt.v2ray.StandardV2RayBean
 import io.nekohasekai.sagernet.fmt.v2ray.buildSingBoxOutboundStandardV2RayBean
 import io.nekohasekai.sagernet.fmt.wireguard.WireGuardBean
-import io.nekohasekai.sagernet.fmt.wireguard.buildSingBoxOutboundWireguardBean
+import io.nekohasekai.sagernet.fmt.wireguard.buildSingBoxEndpointWireguardBean
 import io.nekohasekai.sagernet.ktx.isIpAddress
 import io.nekohasekai.sagernet.ktx.mkPort
 import io.nekohasekai.sagernet.utils.PackageCache
@@ -141,7 +141,6 @@ fun buildConfig(
     val enableDnsRouting = DataStore.enableDnsRouting
     val useFakeDns = DataStore.enableFakeDns && !forTest
     val needSniff = DataStore.trafficSniffing > 0
-    val needSniffOverride = DataStore.trafficSniffing == 2
     val externalIndexMap = ArrayList<IndexEntity>()
     val ipv6Mode = if (forTest) IPv6Mode.ENABLE else DataStore.ipv6Mode
 
@@ -203,24 +202,14 @@ fun buildConfig(
                     TunImplementation.SYSTEM -> "system"
                     else -> "mixed"
                 }
-                endpoint_independent_nat = true
                 mtu = DataStore.mtu
-                domain_strategy = genDomainStrategy(DataStore.resolveDestination)
-                sniff = needSniff
-                sniff_override_destination = needSniffOverride
-                when (ipv6Mode) {
-                    IPv6Mode.DISABLE -> {
-                        inet4_address = listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
-                    }
-
-                    IPv6Mode.ONLY -> {
-                        inet6_address = listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
-                    }
-
-                    else -> {
-                        inet4_address = listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
-                        inet6_address = listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
-                    }
+                address = when (ipv6Mode) {
+                    IPv6Mode.DISABLE -> listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
+                    IPv6Mode.ONLY -> listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
+                    else -> listOf(
+                        VpnService.PRIVATE_VLAN4_CLIENT + "/28",
+                        VpnService.PRIVATE_VLAN6_CLIENT + "/126",
+                    )
                 }
             })
             inbounds.add(Inbound_MixedOptions().apply {
@@ -228,9 +217,6 @@ fun buildConfig(
                 tag = TAG_MIXED
                 listen = bind
                 listen_port = DataStore.mixedPort
-                domain_strategy = genDomainStrategy(DataStore.resolveDestination)
-                sniff = needSniff
-                sniff_override_destination = needSniffOverride
             })
         }
 
@@ -239,8 +225,29 @@ fun buildConfig(
         // init routing object
         route = RouteOptions().apply {
             auto_detect_interface = true
+            final_ = TAG_PROXY
             rules = mutableListOf()
             rule_set = mutableListOf()
+        }
+
+        // Legacy inbound sniff/domain_strategy fields were removed in sing-box 1.13.
+        // Keep their behavior scoped to the same inbounds via route rule actions.
+        if (!forTest) {
+            val localInboundTags = if (isVPN) {
+                listOf("tun-in", TAG_MIXED)
+            } else {
+                listOf(TAG_MIXED)
+            }
+            if (needSniff) route.rules.add(Rule_DefaultOptions().apply {
+                inbound = localInboundTags
+                action = "sniff"
+            })
+            val resolveStrategy = genDomainStrategy(DataStore.resolveDestination)
+            if (resolveStrategy.isNotEmpty()) route.rules.add(Rule_DefaultOptions().apply {
+                inbound = localInboundTags
+                action = "resolve"
+                strategy = resolveStrategy
+            })
         }
 
         // returns outbound tag
@@ -356,7 +363,7 @@ fun buildConfig(
                             buildSingBoxOutboundShadowsocksBean(bean)
 
                         is WireGuardBean ->
-                            buildSingBoxOutboundWireguardBean(bean)
+                            buildSingBoxEndpointWireguardBean(bean)
 
                         is SSHBean ->
                             buildSingBoxOutboundSSHBean(bean)
@@ -388,15 +395,19 @@ fun buildConfig(
                     } catch (_: Exception) {
                     }
 
-                    // domain_strategy
+                    // Resolve server addresses directly and replace legacy outbound domain_strategy.
                     pastEntity?.requireBean()?.apply {
                         // don't loopback
                         if (defaultServerDomainStrategy != "" && !serverAddress.isIpAddress()) {
                             domainListDNSDirectForce.add("full:$serverAddress")
                         }
                     }
-                    _hack_config_map["domain_strategy"] =
-                        if (forTest) "" else defaultServerDomainStrategy
+                    if (!forTest && defaultServerDomainStrategy.isNotEmpty()) {
+                        _hack_config_map["domain_resolver"] = mapOf(
+                            "server" to "dns-direct",
+                            "strategy" to defaultServerDomainStrategy,
+                        )
+                    }
 
                     _hack_config_map["tag"] = tagOut
 
@@ -448,7 +459,13 @@ fun buildConfig(
                     }
                 }
 
-                outbounds.add(currentOutbound)
+                if (currentOutbound is Endpoint) {
+                    val endpointList = endpoints
+                        ?: mutableListOf<SingBoxOption>().also { endpoints = it }
+                    endpointList.add(currentOutbound)
+                } else {
+                    outbounds.add(currentOutbound)
+                }
                 chainOutbounds.add(currentOutbound)
                 pastOutbound = currentOutbound
                 pastEntity = proxyEntity

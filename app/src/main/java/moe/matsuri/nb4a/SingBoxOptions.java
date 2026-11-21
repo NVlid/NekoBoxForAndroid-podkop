@@ -109,6 +109,8 @@ public class SingBoxOptions {
 
         public NTPOptions ntp;
 
+        public List<SingBoxOption> endpoints;
+
         public List<Inbound> inbounds;
 
         public List<SingBoxOption> outbounds;
@@ -2354,20 +2356,14 @@ public class SingBoxOptions {
         public Integer mtu;
 
         // Generate note: Listable
-        public List<String> inet4_address;
-
-        // Generate note: Listable
-        public List<String> inet6_address;
+        public List<String> address;
 
         public Boolean auto_route;
 
         public Boolean strict_route;
 
         // Generate note: Listable
-        public List<String> inet4_route_address;
-
-        // Generate note: Listable
-        public List<String> inet6_route_address;
+        public List<String> route_address;
 
         // Generate note: Listable
         public List<String> include_interface;
@@ -2858,20 +2854,14 @@ public class SingBoxOptions {
         public Integer mtu;
 
         // Generate note: Listable
-        public List<String> inet4_address;
-
-        // Generate note: Listable
-        public List<String> inet6_address;
+        public List<String> address;
 
         public Boolean auto_route;
 
         public Boolean strict_route;
 
         // Generate note: Listable
-        public List<String> inet4_route_address;
-
-        // Generate note: Listable
-        public List<String> inet6_route_address;
+        public List<String> route_address;
 
         // Generate note: Listable
         public List<String> include_interface;
@@ -3905,6 +3895,83 @@ public class SingBoxOptions {
 
     }
 
+    public static class Endpoint extends SingBoxOption {
+
+        public String type;
+
+        public String tag;
+
+    }
+
+    public static class WireGuardEndpointPeer extends SingBoxOption {
+
+        public String address;
+
+        public Integer port;
+
+        public String public_key;
+
+        public String pre_shared_key;
+
+        public List<String> allowed_ips;
+
+        public Integer persistent_keepalive_interval;
+
+        public List<Integer> reserved;
+
+    }
+
+    public static class Endpoint_WireGuardOptions extends Endpoint {
+
+        // Generate note: nested type DialerOptions
+        public String detour;
+
+        public String bind_interface;
+
+        public String inet4_bind_address;
+
+        public String inet6_bind_address;
+
+        public String protect_path;
+
+        public Integer routing_mark;
+
+        public Boolean reuse_addr;
+
+        public Long connect_timeout;
+
+        public Boolean tcp_fast_open;
+
+        public Boolean tcp_multi_path;
+
+        public Boolean udp_fragment;
+
+        public DomainResolveOptions domain_resolver;
+
+        public Long fallback_delay;
+
+        // End of public DialerOptions ;
+
+        public Boolean system;
+
+        public String name;
+
+        public Integer mtu;
+
+        public List<String> address;
+
+        public String private_key;
+
+        public Integer listen_port;
+
+        public List<WireGuardEndpointPeer> peers;
+
+        public String udp_timeout;
+
+        public Integer workers;
+
+    }
+
     public static class Outbound_WireGuardOptions extends Outbound {
 
         // Generate note: nested type DialerOptions
@@ -4536,6 +4603,8 @@ public class SingBoxOptions {
         public String action;
 
         public String outbound;
+
+        public String strategy;
 
     }
 
