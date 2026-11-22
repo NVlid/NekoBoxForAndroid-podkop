@@ -383,6 +383,8 @@
 <string name="route_bypass">Обход</string>
 <string name="route_bypass_domain">Правило домена для %s</string>
 <string name="route_bypass_ip">Правило IP для %s</string>
+<string name="route_ru_blocked_domains">РФ: заблокированные домены</string>
+<string name="route_ru_blocked_ip">РФ: заблокированные IP-адреса</string>
 <string name="route_for">Правило для %s</string>
 <string name="route_manage_assets">Управление ресурсами маршрутов</string>
 <string name="route_name">Название маршрута</string>

@@ -14,6 +14,7 @@ import io.nekohasekai.sagernet.aidl.ISagerNetService
 import io.nekohasekai.sagernet.aidl.ISagerNetServiceCallback
 import io.nekohasekai.sagernet.bg.proto.ProxyInstance
 import io.nekohasekai.sagernet.database.DataStore
+import io.nekohasekai.sagernet.database.ProfileManager
 import io.nekohasekai.sagernet.database.SagerDatabase
 import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.plugin.PluginManager
@@ -362,6 +363,7 @@ class BaseService {
 
                     Executable.killAll()    // clean up old processes
                     preInit()
+                    ProfileManager.getRules()
                     proxy.init()
                     DataStore.currentProfile = profile.id
 

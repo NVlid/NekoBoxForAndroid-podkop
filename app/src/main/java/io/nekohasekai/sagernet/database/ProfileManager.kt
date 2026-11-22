@@ -2,6 +2,7 @@ package io.nekohasekai.sagernet.database
 
 import android.database.sqlite.SQLiteCantOpenDatabaseException
 import io.nekohasekai.sagernet.R
+import io.nekohasekai.sagernet.SrsRuleSets
 import io.nekohasekai.sagernet.aidl.TrafficData
 import io.nekohasekai.sagernet.fmt.AbstractBean
 import io.nekohasekai.sagernet.ktx.Logs
@@ -182,7 +183,7 @@ object ProfileManager {
     }
 
     suspend fun getRules(): List<RuleEntity> {
-        var rules = SagerDatabase.rulesDao.allRules()
+        val rules = SagerDatabase.rulesDao.allRules()
         if (rules.isEmpty() && !DataStore.rulesFirstCreate) {
             DataStore.rulesFirstCreate = true
             createRule(
@@ -196,44 +197,51 @@ object ProfileManager {
             createRule(
                 RuleEntity(
                     name = app.getString(R.string.route_opt_block_ads),
-                    domains = "geosite:category-ads-all",
+                    domains = SrsRuleSets.RU_ADS_GEOSITE,
                     outbound = -2
                 )
             )
-            val fuckedCountry = mutableListOf("cn:中国")
-            if (Locale.getDefault().country != Locale.CHINA.country) {
-                // 非中文用户
-                fuckedCountry += "ir:Iran"
-                fuckedCountry += "ru:Russia"
-            }
-            for (c in fuckedCountry) {
-                val country = c.substringBefore(":")
-                val displayCountry = c.substringAfter(":")
-                //
-                if (country == "cn") createRule(
-                    RuleEntity(
-                        name = app.getString(R.string.route_play_store, displayCountry),
-                        domains = "googleapis.cn",
-                    ), false
-                )
-                createRule(
-                    RuleEntity(
-                        name = app.getString(R.string.route_bypass_domain, displayCountry),
-                        domains = "geosite:$country",
-                        outbound = -1
-                    ), false
-                )
-                createRule(
-                    RuleEntity(
-                        name = app.getString(R.string.route_bypass_ip, displayCountry),
-                        ip = "geoip:$country",
-                        outbound = -1
-                    ), false
-                )
-            }
-            rules = SagerDatabase.rulesDao.allRules()
         }
-        return rules
+
+        if (DataStore.routingDefaultsVersion < 1) {
+            val legacyCountryRules = SagerDatabase.rulesDao.allRules().filter {
+                it.domains == "googleapis.cn" ||
+                    (it.outbound == -1L && it.domains in setOf("geosite:cn", "geosite:ir", "geosite:ru")) ||
+                    (it.outbound == -1L && it.ip in setOf("geoip:cn", "geoip:ir", "geoip:ru"))
+            }
+            if (legacyCountryRules.isNotEmpty()) deleteRules(legacyCountryRules)
+
+            SagerDatabase.rulesDao.allRules()
+                .filter { it.domains == "geosite:category-ads-all" && it.outbound == -2L }
+                .forEach {
+                    it.domains = SrsRuleSets.RU_ADS_GEOSITE
+                    updateRule(it)
+                }
+
+            val currentRules = SagerDatabase.rulesDao.allRules()
+            if (currentRules.none { it.domains == SrsRuleSets.RU_BLOCKED_GEOSITE }) {
+                createRule(
+                    RuleEntity(
+                        name = app.getString(R.string.route_ru_blocked_domains),
+                        domains = SrsRuleSets.RU_BLOCKED_GEOSITE,
+                        outbound = 0,
+                        enabled = true,
+                    ), false
+                )
+            }
+            if (currentRules.none { it.ip == SrsRuleSets.RU_BLOCKED_GEOIP }) {
+                createRule(
+                    RuleEntity(
+                        name = app.getString(R.string.route_ru_blocked_ip),
+                        ip = SrsRuleSets.RU_BLOCKED_GEOIP,
+                        outbound = 0,
+                        enabled = true,
+                    ), false
+                )
+            }
+            DataStore.routingDefaultsVersion = 1
+        }
+        return SagerDatabase.rulesDao.allRules()
     }
 
 }

@@ -59,6 +59,7 @@ class SagerNet : Application(),
         if (isMainProcess || isBgProcess) {
             externalAssets.mkdirs()
             Seq.setContext(this)
+            DataStore.migrateBuiltInDefaults()
             Libcore.initCore(
                 process,
                 cacheDir.absolutePath + "/",

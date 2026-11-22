@@ -151,6 +151,8 @@
     <string name="route_bypass_domain">Domain rule for %s</string>
     <string name="route_play_store">Play store rule for %s</string>
     <string name="route_bypass_ip">IP rule for %s</string>
+    <string name="route_ru_blocked_domains">Russia: blocked domains</string>
+    <string name="route_ru_blocked_ip">Russia: blocked IP addresses</string>
     <string name="route_reset">Reset</string>
     <string name="route_manage_assets">Manage Route Assets</string>
     <string name="route_assets">Assets</string>

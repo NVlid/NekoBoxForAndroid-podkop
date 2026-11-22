@@ -1,7 +1,10 @@
 package moe.matsuri.nb4a
 
+import io.nekohasekai.sagernet.SagerNet
+import io.nekohasekai.sagernet.SrsRuleSets
 import io.nekohasekai.sagernet.database.DataStore
 import moe.matsuri.nb4a.SingBoxOptions.RuleSet
+import java.io.File
 
 object SingBoxOptionsUtil {
 
@@ -34,7 +37,7 @@ fun SingBoxOptions.DNSRule_DefaultOptions.makeSingBoxRule(list: List<String>) {
     domain_regex = mutableListOf<String>()
     domain_keyword = mutableListOf<String>()
     list.forEach {
-        if (it.startsWith("geosite:")) {
+        if (it.startsWith(SrsRuleSets.PREFIX) || it.startsWith("geosite:")) {
             rule_set.plusAssign(it)
         } else if (it.startsWith("full:")) {
             domain.plusAssign(it.removePrefix("full:").lowercase())
@@ -73,6 +76,30 @@ fun SingBoxOptions.DNSRule_DefaultOptions.checkEmpty(): Boolean {
 fun generateRuleSet(ruleSetString: List<String>, ruleSet: MutableList<RuleSet>) {
     ruleSetString.forEach {
         when {
+            it.startsWith(SrsRuleSets.PREFIX) -> {
+                val defaultAsset = SrsRuleSets.defaults.find { asset -> asset.tag == it }
+                val configuredPath = defaultAsset?.fileName ?: it.removePrefix(SrsRuleSets.PREFIX)
+                val configuredFile = File(configuredPath)
+                val localFile = if (configuredFile.isAbsolute) {
+                    configuredFile
+                } else {
+                    File(SagerNet.application.externalAssets, configuredPath)
+                }
+                val useLocalFile = defaultAsset == null || localFile.isFile
+                ruleSet.add(RuleSet().apply {
+                    tag = it
+                    format = "binary"
+                    if (useLocalFile) {
+                        type = "local"
+                        path = localFile.absolutePath
+                    } else {
+                        type = "remote"
+                        url = checkNotNull(defaultAsset).url
+                        _hack_config_map["http_client"] = mapOf("detour" to "proxy")
+                    }
+                })
+            }
+
             it.startsWith("geoip:") -> {
                 ruleSet.add(RuleSet().apply {
                     type = "local"
@@ -107,7 +134,9 @@ fun SingBoxOptions.Rule_DefaultOptions.makeSingBoxRule(list: List<String>, isIP:
     }
     list.forEach {
         if (isIP) {
-            if (it.startsWith("geoip:")) {
+            if (it.startsWith(SrsRuleSets.PREFIX)) {
+                rule_set.plusAssign(it)
+            } else if (it.startsWith("geoip:")) {
                 if (it == "geoip:private") {
                     ip_is_private = true
                 } else {
@@ -118,7 +147,7 @@ fun SingBoxOptions.Rule_DefaultOptions.makeSingBoxRule(list: List<String>, isIP:
             }
             return@forEach
         }
-        if (it.startsWith("geosite:")) {
+        if (it.startsWith(SrsRuleSets.PREFIX) || it.startsWith("geosite:")) {
             rule_set.plusAssign(it)
         } else if (it.startsWith("full:")) {
             domain.plusAssign(it.removePrefix("full:").lowercase())

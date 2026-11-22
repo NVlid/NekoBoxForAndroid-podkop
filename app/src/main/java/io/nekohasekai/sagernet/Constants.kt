@@ -159,6 +159,37 @@ object Key {
     const val ENABLE_CLASH_API = "enableClashAPI"
 }
 
+object SrsRuleSets {
+    const val PREFIX = "srs:"
+    const val RU_BLOCKED_GEOSITE = "srs:ru-blocked-geosite"
+    const val RU_BLOCKED_GEOIP = "srs:ru-blocked-geoip"
+    const val RU_ADS_GEOSITE = "srs:ru-ads-geosite"
+
+    data class Asset(
+        val tag: String,
+        val fileName: String,
+        val url: String,
+    )
+
+    val defaults = listOf(
+        Asset(
+            RU_BLOCKED_GEOSITE,
+            "ru-blocked-geosite.srs",
+            "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-ru-blocked-all.srs",
+        ),
+        Asset(
+            RU_BLOCKED_GEOIP,
+            "ru-blocked-geoip.srs",
+            "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geoip/geoip-ru-blocked.srs",
+        ),
+        Asset(
+            RU_ADS_GEOSITE,
+            "ru-ads-geosite.srs",
+            "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ads-all.srs",
+        ),
+    )
+}
+
 object TunImplementation {
     const val GVISOR = 0
     const val SYSTEM = 1
