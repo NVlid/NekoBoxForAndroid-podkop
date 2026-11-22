@@ -370,7 +370,7 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                 }
 
                 R.id.action_export_partial -> {
-                    PartialGroupExportDialog(this, proxyGroup).show()
+                    PartialGroupExportDialog(this@GroupFragment, proxyGroup).show()
                 }
 
                 R.id.action_clear -> {
