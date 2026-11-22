@@ -130,6 +130,15 @@
             app:key="ipv6Mode"
             app:title="@string/ipv6"
             app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:defaultValue="proxy"
+            app:entries="@array/default_route_entries"
+            app:entryValues="@array/default_route_values"
+            app:icon="@drawable/ic_baseline_rule_folder_24"
+            app:key="defaultRoute"
+            app:summary="@string/default_route_summary"
+            app:title="@string/default_route"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/cag_dns">

@@ -144,6 +144,10 @@
     <string name="route_name">Route Name</string>
     <string name="route_proxy">Proxy</string>
     <string name="route_bypass">Bypass</string>
+    <string name="route_proxy_all">Proxy everything</string>
+    <string name="route_direct_all">Direct connection</string>
+    <string name="default_route">Default traffic action</string>
+    <string name="default_route_summary">Applies to traffic not matched by any rule</string>
     <string name="route_block">Block</string>
     <string name="route_profile">Select Profile…</string>
     <string name="empty_route">Empty Route</string>

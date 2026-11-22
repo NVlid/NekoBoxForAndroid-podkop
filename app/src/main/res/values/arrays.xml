@@ -233,6 +233,15 @@
         <item>udp</item>
     </string-array>
 
+    <string-array name="default_route_entries">
+        <item>@string/route_proxy_all</item>
+        <item>@string/route_direct_all</item>
+    </string-array>
+    <string-array name="default_route_values">
+        <item>proxy</item>
+        <item>direct</item>
+    </string-array>
+
     <string-array name="outbound_entry">
         <item>@string/route_proxy</item>
         <item>@string/route_bypass</item>

@@ -121,6 +121,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var enableFakeDns by configurationStore.boolean(Key.ENABLE_FAKEDNS) { true }
 
     var rulesProvider by configurationStore.stringToInt(Key.RULES_PROVIDER)
+    var defaultRoute by configurationStore.string(Key.DEFAULT_ROUTE) { "proxy" }
     var routingDefaultsVersion by configurationStore.int("routingDefaultsVersion") { 0 }
     var logLevel by configurationStore.stringToInt(Key.LOG_LEVEL)
     var logBufSize by configurationStore.int(Key.LOG_BUF_SIZE) { 0 }

@@ -225,7 +225,7 @@ fun buildConfig(
         // init routing object
         route = RouteOptions().apply {
             auto_detect_interface = true
-            final_ = TAG_PROXY
+            final_ = if (forTest || DataStore.defaultRoute == "proxy") TAG_PROXY else TAG_BYPASS
             rules = mutableListOf()
             rule_set = mutableListOf()
         }
