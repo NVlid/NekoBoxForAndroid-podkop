@@ -131,12 +131,14 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
     }
 
     private lateinit var selectedGroup: ProxyGroup
+    private var exportSelection: List<ProxyEntity>? = null
 
     private val exportProfiles =
         registerForActivityResult(ActivityResultContracts.CreateDocument()) { data ->
             if (data != null) {
                 runOnDefaultDispatcher {
-                    val profiles = SagerDatabase.proxyDao.getByGroup(selectedGroup.id)
+                    val profiles = exportSelection ?: SagerDatabase.proxyDao.getByGroup(selectedGroup.id)
+                    exportSelection = null
                     val links = profiles.joinToString("\n") { it.toStdLink(compact = true) }
                     try {
                         (requireActivity() as MainActivity).contentResolver.openOutputStream(
@@ -157,6 +159,11 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                 }
             }
         }
+
+    fun startPartialExport(profiles: List<ProxyEntity>) {
+        exportSelection = profiles
+        startFilesForResult(exportProfiles, "profiles_${selectedGroup.displayName()}_partial.txt")
+    }
 
     inner class GroupAdapter : RecyclerView.Adapter<GroupHolder>(),
         GroupManager.Listener,
@@ -358,7 +365,12 @@ class GroupFragment : ToolbarFragment(R.layout.layout_group),
                 }
 
                 R.id.action_export_file -> {
+                    exportSelection = null
                     startFilesForResult(exportProfiles, "profiles_${proxyGroup.displayName()}.txt")
+                }
+
+                R.id.action_export_partial -> {
+                    PartialGroupExportDialog(this, proxyGroup).show()
                 }
 
                 R.id.action_clear -> {

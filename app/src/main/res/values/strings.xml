@@ -244,6 +244,14 @@
     <string name="action_import_file">Import from file</string>
     <string name="action_export_msg">Successfully export!</string>
     <string name="action_export_err">Failed to export.</string>
+    <string name="partial_group_export">Partial export</string>
+    <string name="partial_export_search_hint">Filter by name</string>
+    <string name="partial_export_only_available">Only available (successful URL ping)</string>
+    <string name="partial_export_select_visible">Select visible</string>
+    <string name="partial_export_clear_visible">Clear visible</string>
+    <string name="partial_export_selected_count">Selected: %1$d of %2$d</string>
+    <string name="partial_export_empty">No profiles match the filters</string>
+    <string name="partial_export_none_selected">Select at least one profile</string>
     <string name="action_import_msg">Successfully import!</string>
     <string name="action_import_err">Failed to import.</string>
     <string name="file_manager_missing">Your device lacks an Android standard file selector, please
