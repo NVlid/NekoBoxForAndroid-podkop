@@ -119,7 +119,6 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         val checkedItem = values.indexOf(DataStore.defaultRoute).coerceAtLeast(0)
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.default_route)
-            .setMessage(R.string.default_route_summary)
             .setSingleChoiceItems(entries, checkedItem) { dialog, which ->
                 val value = values[which]
                 if (DataStore.defaultRoute != value) {

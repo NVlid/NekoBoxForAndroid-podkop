@@ -2,11 +2,13 @@ package io.nekohasekai.sagernet.database
 
 import android.os.Binder
 import android.os.Build
+import android.provider.Settings
 import androidx.preference.PreferenceDataStore
 import io.nekohasekai.sagernet.CONNECTION_TEST_URL
 import io.nekohasekai.sagernet.GroupType
 import io.nekohasekai.sagernet.IPv6Mode
 import io.nekohasekai.sagernet.Key
+import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.TunImplementation
 import io.nekohasekai.sagernet.bg.BaseService
 import io.nekohasekai.sagernet.bg.VpnService
@@ -121,7 +123,7 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var enableFakeDns by configurationStore.boolean(Key.ENABLE_FAKEDNS) { true }
 
     var rulesProvider by configurationStore.stringToInt(Key.RULES_PROVIDER)
-    var defaultRoute by configurationStore.string(Key.DEFAULT_ROUTE) { "proxy" }
+    var defaultRoute by configurationStore.string(Key.DEFAULT_ROUTE) { "direct" }
     var routingDefaultsVersion by configurationStore.int("routingDefaultsVersion") { 0 }
     var logLevel by configurationStore.stringToInt(Key.LOG_LEVEL)
     var logBufSize by configurationStore.int(Key.LOG_BUF_SIZE) { 0 }
@@ -208,10 +210,28 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var subscriptionHwid by configurationStore.string(Key.SUBSCRIPTION_HWID) { "" }
     var subscriptionDeviceName by configurationStore.string(Key.SUBSCRIPTION_DEVICE_NAME) { "" }
 
+    private fun defaultSubscriptionHwid(): String {
+        val androidId = Settings.Secure.getString(
+            SagerNet.application.contentResolver,
+            Settings.Secure.ANDROID_ID,
+        ).orEmpty().trim()
+        if (Regex("^[a-zA-Z0-9=-]{10,64}$").matches(androidId)) return androidId
+
+        // ANDROID_ID is normally always available. Keep the rare fallback deterministic too.
+        val deviceSeed = listOf(
+            Build.MANUFACTURER,
+            Build.BRAND,
+            Build.MODEL,
+            Build.DEVICE,
+            Build.FINGERPRINT,
+        ).joinToString("|")
+        return UUID.nameUUIDFromBytes(deviceSeed.toByteArray()).toString()
+    }
+
     @Synchronized
     fun effectiveSubscriptionHwid(): String {
         subscriptionHwid.trim().takeIf { it.isNotEmpty() }?.let { return it }
-        return UUID.randomUUID().toString().also { subscriptionHwid = it }
+        return defaultSubscriptionHwid().also { subscriptionHwid = it }
     }
 
     fun effectiveSubscriptionDeviceName(): String {
