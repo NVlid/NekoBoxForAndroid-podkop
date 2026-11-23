@@ -55,7 +55,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             app:selectionRequired="true"
-                            app:singleLine="true"
+                            app:singleLine="false"
                             app:singleSelection="true">
 
                             <com.google.android.material.chip.Chip
@@ -79,10 +79,10 @@
 
                         </com.google.android.material.chip.ChipGroup>
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.chip.ChipGroup
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            app:singleLine="false">
 
                             <com.google.android.material.chip.Chip
                                 android:id="@+id/show_system_apps"
@@ -100,7 +100,7 @@
                                 android:checkable="false"
                                 android:text="@string/auto_select_proxy_apps" />
 
-                        </LinearLayout>
+                        </com.google.android.material.chip.ChipGroup>
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"

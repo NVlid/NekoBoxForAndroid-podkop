@@ -3,6 +3,9 @@
     <string name="app_name" translatable="false">NekoBox</string>
     <string name="app_name_long" translatable="false">NekoBox for Android</string>
     <string name="app_desc">The universal proxy toolchain for Android, written in Kotlin.</string>
+    <string name="app_modification">Modified application</string>
+    <string name="app_modification_info">This app is a modified version of the original NekoBox for Android.</string>
+    <string name="original_developer">Original developer</string>
     <string name="project">Project</string>
     <string name="github">Source code</string>
     <string name="telegram">Telegram update channel</string>
