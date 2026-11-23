@@ -123,16 +123,36 @@ fun buildConfig(
         return list
     }
 
+    val isVPN = DataStore.serviceMode == Key.MODE_VPN
     val extraRules = if (forTest) listOf() else SagerDatabase.rulesDao.enabledRules()
-    val extraProxies =
-        if (forTest) mapOf() else SagerDatabase.proxyDao.getEntities(extraRules.mapNotNull { rule ->
-            rule.outbound.takeIf { it > 0 && it != proxy.id }
-        }.toHashSet().toList()).associateBy { it.id }
+    val appProfiles = if (!forTest && isVPN && DataStore.proxyApps) {
+        val selectedApps = DataStore.individual.lineSequence()
+            .filter { it.isNotBlank() }
+            .toHashSet()
+        DataStore.appProfileMap().filterKeys { packageName ->
+            if (DataStore.bypass) {
+                packageName !in selectedApps
+            } else {
+                packageName in selectedApps
+            }
+        }
+    } else {
+        emptyMap()
+    }
+    val extraProfileIds = extraRules.mapNotNull { rule ->
+        rule.outbound.takeIf { it > 0 }
+    } + appProfiles.values
+    val extraProxies = if (forTest) {
+        mapOf()
+    } else {
+        SagerDatabase.proxyDao.getEntities(
+            extraProfileIds.filter { it != proxy.id }.toHashSet().toList()
+        ).associateBy { it.id }
+    }
     val buildSelector = !forTest && group?.isSelector == true && !forExport
     val userDNSRuleList = mutableListOf<DNSRule_DefaultOptions>()
     val domainListDNSDirectForce = mutableListOf<String>()
     val bypassDNSBeans = hashSetOf<AbstractBean>()
-    val isVPN = DataStore.serviceMode == Key.MODE_VPN
     val bind = if (!forTest && DataStore.allowAccess) "0.0.0.0" else LOCALHOST
     val remoteDns = DataStore.remoteDns.split("\n")
         .mapNotNull { dns -> dns.trim().takeIf { it.isNotBlank() && !it.startsWith("#") } }
@@ -493,6 +513,26 @@ fun buildConfig(
         // build outbounds from route item
         extraProxies.forEach { (key, p) ->
             tagMap[key] = buildChain(key, p)
+        }
+
+        // Per-app profile rules take precedence over regular user routes.
+        if (appProfiles.isNotEmpty()) {
+            PackageCache.awaitLoadSync()
+            appProfiles.entries
+                .groupBy({ it.value }, { it.key })
+                .forEach { (profileId, packages) ->
+                    val uidList = packages.mapNotNull { packageName ->
+                        PackageCache[packageName]?.takeIf { uid -> uid >= 1000 }
+                    }.toHashSet()
+                    val outboundTag = if (profileId == proxy.id) TAG_PROXY else tagMap[profileId]
+                    if (uidList.isNotEmpty() && outboundTag != null) {
+                        route.rules.add(Rule_DefaultOptions().apply {
+                            inbound = listOf("tun-in")
+                            user_id = uidList
+                            outbound = outboundTag
+                        })
+                    }
+                }
         }
 
         // apply user rules

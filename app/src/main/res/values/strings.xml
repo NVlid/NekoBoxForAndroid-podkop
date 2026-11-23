@@ -180,6 +180,11 @@
     <string name="tcp_keep_alive_interval">TCP keep active packet delivery interval</string>
     <string name="proxied_apps">Apps VPN mode</string>
     <string name="proxied_apps_summary">Configure VPN mode for selected apps</string>
+    <string name="app_profile">App profile</string>
+    <string name="app_profile_for">Profile for %s</string>
+    <string name="app_profile_default">Main profile</string>
+    <string name="app_profile_missing">Deleted profile</string>
+    <string name="app_profile_value">Profile: %s</string>
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="search_apps">Search…</string>

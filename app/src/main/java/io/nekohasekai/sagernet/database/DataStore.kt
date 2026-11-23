@@ -164,7 +164,31 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var proxyApps by configurationStore.boolean(Key.PROXY_APPS)
     var bypass by configurationStore.boolean(Key.BYPASS_MODE) { true }
     var individual by configurationStore.string(Key.INDIVIDUAL)
+    var appProfiles by configurationStore.string(Key.APP_PROFILES) { "" }
     var showDirectSpeed by configurationStore.boolean(Key.SHOW_DIRECT_SPEED) { true }
+
+    fun appProfileMap(): Map<String, Long> = appProfiles.lineSequence().mapNotNull { line ->
+        val separator = line.lastIndexOf('=')
+        if (separator <= 0) return@mapNotNull null
+        val packageName = line.substring(0, separator).trim()
+        val profileId = line.substring(separator + 1).toLongOrNull()?.takeIf { it > 0L }
+        if (packageName.isEmpty() || profileId == null) {
+            null
+        } else {
+            packageName to profileId
+        }
+    }.toMap()
+
+    @Synchronized
+    fun setAppProfile(packageName: String, profileId: Long?) {
+        val profiles = appProfileMap().toMutableMap()
+        if (profileId == null || profileId <= 0L) {
+            profiles.remove(packageName)
+        } else {
+            profiles[packageName] = profileId
+        }
+        appProfiles = profiles.entries.joinToString("\n") { (pkg, id) -> "$pkg=$id" }
+    }
 
     val persistAcrossReboot by configurationStore.boolean(Key.PERSIST_ACROSS_REBOOT) { false }
 

@@ -31,6 +31,8 @@ import io.nekohasekai.sagernet.BuildConfig
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.database.DataStore
+import io.nekohasekai.sagernet.database.ProxyEntity
+import io.nekohasekai.sagernet.database.SagerDatabase
 import io.nekohasekai.sagernet.databinding.LayoutAppsBinding
 import io.nekohasekai.sagernet.databinding.LayoutAppsItemBinding
 import io.nekohasekai.sagernet.ktx.Logs
@@ -77,6 +79,9 @@ class AppManagerActivity : ThemedActivity() {
 
         init {
             binding.root.setOnClickListener(this)
+            binding.appProfile.setOnClickListener {
+                selectAppProfile(item)
+            }
         }
 
         fun bind(app: ProxiedApp) {
@@ -85,6 +90,16 @@ class AppManagerActivity : ThemedActivity() {
             binding.title.text = app.name
             binding.desc.text = "${app.packageName} (${app.uid})"
             binding.itemcheck.isChecked = isProxiedApp(app)
+            binding.appProfile.visibility = View.VISIBLE
+            binding.profile.visibility = View.VISIBLE
+            val profileId = appProfiles[app.packageName]
+            val profile = profileId?.let { availableProfiles[it] }
+            val profileName = when {
+                profile != null -> profile.displayName()
+                profileId != null -> getString(R.string.app_profile_missing)
+                else -> getString(R.string.app_profile_default)
+            }
+            binding.profile.text = getString(R.string.app_profile_value, profileName)
         }
 
         fun handlePayload(payloads: List<String>) {
@@ -107,6 +122,7 @@ class AppManagerActivity : ThemedActivity() {
 
         suspend fun reload() {
             PackageCache.reload()
+            availableProfiles = SagerDatabase.proxyDao.getAll().associateBy { it.id }
             apps = cachedApps.mapNotNull { (packageName, packageInfo) ->
                 coroutineContext[Job]!!.ensureActive()
                 packageInfo.applicationInfo?.let { ProxiedApp(packageManager, it, packageName) }
@@ -164,6 +180,8 @@ class AppManagerActivity : ThemedActivity() {
     private var loader: Job? = null
     private var apps = emptyList<ProxiedApp>()
     private val appsAdapter = AppsAdapter()
+    private var availableProfiles = emptyMap<Long, ProxyEntity>()
+    private var appProfiles = emptyMap<String, Long>()
 
     private fun initProxiedUids(str: String = DataStore.individual) {
         proxiedUids.clear()
@@ -233,6 +251,7 @@ class AppManagerActivity : ThemedActivity() {
         }
         binding.autoSelectProxyApps.setOnClickListener { selectProxyApp() }
 
+        appProfiles = DataStore.appProfileMap()
         initProxiedUids()
         binding.list.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         binding.list.itemAnimator = DefaultItemAnimator()
@@ -332,6 +351,32 @@ class AppManagerActivity : ThemedActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun selectAppProfile(item: ProxiedApp) {
+        val profiles = availableProfiles.values.sortedBy { it.displayName().lowercase() }
+        val profileIds = listOf(0L) + profiles.map { it.id }
+        val entries = arrayOf(
+            getString(R.string.app_profile_default),
+            *profiles.map { it.displayName() }.toTypedArray(),
+        )
+        val currentProfile = appProfiles[item.packageName] ?: 0L
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.app_profile_for, item.name))
+            .setSingleChoiceItems(
+                entries,
+                profileIds.indexOf(currentProfile).coerceAtLeast(0),
+            ) { dialog, which ->
+                DataStore.setAppProfile(
+                    item.packageName,
+                    profileIds[which].takeIf { it > 0L },
+                )
+                appProfiles = DataStore.appProfileMap()
+                appsAdapter.notifyDataSetChanged()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun selectProxyApp() {

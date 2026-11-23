@@ -56,7 +56,31 @@
                 android:textSize="12sp"
                 tools:text="com.package.name (10000)" />
 
+            <TextView
+                android:id="@+id/profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/accentOrTextSecondary"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="Profile: Main profile"
+                tools:visibility="visible" />
+
         </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/app_profile"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_profile"
+            android:padding="12dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_baseline_vpn_key_24"
+            app:tint="?attr/colorControlNormal"
+            tools:visibility="visible" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/itemcheck"
