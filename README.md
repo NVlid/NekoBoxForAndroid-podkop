@@ -54,7 +54,7 @@ No prebuilt APKs are published here.
 * Mieru (mieru-plugin)
 
 
-## 支持的订阅格式 / Supported Subscription Format
+## Supported Subscription Format
 
 * (Shadowsocks, ClashMeta, v2rayN)
 * sing-box 
