@@ -14,10 +14,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <include
+            layout="@layout/layout_default_route"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/route_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:padding="4dp"
             android:scrollbarSize="0dp"
             app:fastScrollAutoHide="true"

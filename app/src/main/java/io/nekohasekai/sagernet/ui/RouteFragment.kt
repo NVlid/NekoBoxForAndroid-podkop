@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,6 +28,7 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
     lateinit var ruleListView: RecyclerView
     lateinit var ruleAdapter: RuleAdapter
     lateinit var undoManager: UndoSnackbarManager<RuleEntity>
+    private lateinit var defaultRouteValue: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,6 +39,12 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
         toolbar.setTitle(R.string.menu_route)
         toolbar.inflateMenu(R.menu.add_route_menu)
         toolbar.setOnMenuItemClickListener(this)
+
+        defaultRouteValue = view.findViewById(R.id.default_route_value)
+        updateDefaultRouteValue()
+        view.findViewById<View>(R.id.default_route_button).setOnClickListener {
+            showDefaultRouteDialog()
+        }
 
         ruleListView = view.findViewById(R.id.route_list)
         ruleListView.layoutManager = FixedLinearLayoutManager(ruleListView)
@@ -91,6 +99,38 @@ class RouteFragment : ToolbarFragment(R.layout.layout_route), Toolbar.OnMenuItem
                 ruleAdapter.commitMove()
             }
         }).attachToRecyclerView(ruleListView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::defaultRouteValue.isInitialized) updateDefaultRouteValue()
+    }
+
+    private fun updateDefaultRouteValue() {
+        val entries = resources.getStringArray(R.array.default_route_entries)
+        val values = resources.getStringArray(R.array.default_route_values)
+        val index = values.indexOf(DataStore.defaultRoute).coerceAtLeast(0)
+        defaultRouteValue.text = entries[index]
+    }
+
+    private fun showDefaultRouteDialog() {
+        val entries = resources.getStringArray(R.array.default_route_entries)
+        val values = resources.getStringArray(R.array.default_route_values)
+        val checkedItem = values.indexOf(DataStore.defaultRoute).coerceAtLeast(0)
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.default_route)
+            .setMessage(R.string.default_route_summary)
+            .setSingleChoiceItems(entries, checkedItem) { dialog, which ->
+                val value = values[which]
+                if (DataStore.defaultRoute != value) {
+                    DataStore.defaultRoute = value
+                    updateDefaultRouteValue()
+                    needReload()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     override fun onDestroy() {

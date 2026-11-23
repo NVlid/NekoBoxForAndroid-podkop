@@ -68,7 +68,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
 
         val showDirectSpeed = findPreference<SwitchPreference>(Key.SHOW_DIRECT_SPEED)!!
         val ipv6Mode = findPreference<Preference>(Key.IPV6_MODE)!!
-        val defaultRoute = findPreference<Preference>(Key.DEFAULT_ROUTE)!!
         val trafficSniffing = findPreference<Preference>(Key.TRAFFIC_SNIFFING)!!
 
         val bypassLan = findPreference<SwitchPreference>(Key.BYPASS_LAN)!!
@@ -165,7 +164,6 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         enableDnsRouting.onPreferenceChangeListener = reloadListener
 
         ipv6Mode.onPreferenceChangeListener = reloadListener
-        defaultRoute.onPreferenceChangeListener = reloadListener
         allowAccess.onPreferenceChangeListener = reloadListener
 
         resolveDestination.onPreferenceChangeListener = reloadListener
