@@ -523,7 +523,7 @@ fun buildConfig(
                 .forEach { (profileId, packages) ->
                     val uidList = packages.mapNotNull { packageName ->
                         PackageCache[packageName]?.takeIf { uid -> uid >= 1000 }
-                    }.toHashSet()
+                    }.toHashSet().toList()
                     val outboundTag = if (profileId == proxy.id) TAG_PROXY else tagMap[profileId]
                     if (uidList.isNotEmpty() && outboundTag != null) {
                         route.rules.add(Rule_DefaultOptions().apply {
