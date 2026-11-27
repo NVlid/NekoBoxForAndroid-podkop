@@ -135,6 +135,9 @@ func (c *Conn) Write(p []byte) (int, error) {
 		}
 		deadline, notify := c.writeDeadline, c.notify
 		c.mu.Unlock()
+		if !deadline.IsZero() && !time.Now().Before(deadline) {
+			return written, os.ErrDeadlineExceeded
+		}
 		ctx, cancel := context.WithCancel(c.Parent)
 		if !deadline.IsZero() {
 			cancel()

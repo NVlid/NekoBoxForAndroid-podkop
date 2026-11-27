@@ -7,6 +7,9 @@ import io.nekohasekai.sagernet.fmt.AbstractBean
 import io.nekohasekai.sagernet.ktx.app
 import io.nekohasekai.sagernet.ktx.getColorAttr
 import moe.matsuri.nb4a.proxy.config.ConfigBean
+import moe.matsuri.nb4a.proxy.tunnel.TunnelBean
+import io.nekohasekai.sagernet.fmt.KryoConverters
+import moe.matsuri.nb4a.utils.JavaUtil
 
 // Settings for all protocols, built-in or plugin
 object Protocols {
@@ -18,6 +21,11 @@ object Protocols {
     ) {
 
         fun hash(): String {
+            if (bean is TunnelBean) {
+                // Several DNS tunnels can deliberately use the same resolver.
+                val copy = bean.clone().apply { name = "" }
+                return JavaUtil.bytesToHex(KryoConverters.serialize(copy))
+            }
             if (bean is ConfigBean) {
                 return bean.config
             }

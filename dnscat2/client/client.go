@@ -42,6 +42,9 @@ type Client struct {
 }
 
 func New(config Config, transport Transport) (*Client, error) {
+	if config.Secret == "" {
+		return nil, errors.New("dnscat2: pre-shared secret is required")
+	}
 	if transport == nil || transport.MaxPayload() < 73 {
 		return nil, errors.New("dnscat2: invalid or too small transport")
 	}
