@@ -14,3 +14,9 @@ this directory and is not provided by the upstream interactive Ruby server.
 No shell, exec, upload, download, persistence, or traffic-evasion features from
 the C&C clients are included. The companion only handles ping and TCP tunnel
 commands.
+
+The `sshuttle` package is a Go implementation of the framing protocol described
+by sshuttle's `ssnet.py`. The upstream Python sshuttle 1.3.2 package is licensed
+under LGPL-2.1 and installed separately by the server administrator; it is not
+bundled into the Android APK or the Go companion.
+Source: https://github.com/sshuttle/sshuttle/tree/v1.3.2

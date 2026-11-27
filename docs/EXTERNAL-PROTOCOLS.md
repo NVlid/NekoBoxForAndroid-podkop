@@ -26,6 +26,11 @@
   прежний код проекта использует destructive fallback при downgrade базы.
 - Автотесты не заменяют проверку на реальном Android и на вашей сети.
 
+Перед установкой экспортируйте профили и группы в резервную копию.
+Debug APK можно обновить поверх установленной версии только при совпадении
+ключа подписи. Если Android сообщает о несовпадении подписи, не удаляйте
+приложение без резервной копии: удаление стирает его данные.
+
 ## DNScat2
 
 Шифрование P-256 / SHA3-256 / Salsa20 и DNS-кодирование соответствуют
@@ -126,6 +131,11 @@ cd dnscat2
 python3 -m pip install sshuttle==1.3.2
 SSHUTTLE_TEST_PYTHON=python3 go test -race ./... -count=3
 ```
+
+Из корня репозитория: `python3 buildScript/check_room_tunnel_schema.py`
+проверяет, что в сгенерированной Room-схеме 7 изменена только nullable-колонка
+`tunnelBean`, и проверяет сохранность старых значений на SQLite в памяти.
+Это структурная host-проверка, не Android instrumentation-тест обновления БД.
 
 Включены официальные ECDH/key-derivation vectors, проверка подписи/nonce,
 потерь handshake/rekey, SEQ wraparound, DNS codec для пяти типов записей,
