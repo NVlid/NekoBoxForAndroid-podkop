@@ -39,6 +39,8 @@ import moe.matsuri.nb4a.proxy.config.ConfigBean
 import moe.matsuri.nb4a.proxy.config.ConfigSettingActivity
 import moe.matsuri.nb4a.proxy.neko.*
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSSettingsActivity
+import moe.matsuri.nb4a.proxy.tunnel.TunnelBean
+import moe.matsuri.nb4a.proxy.tunnel.TunnelSettingsActivity
 
 @Entity(
     tableName = "proxy_entities", indices = [Index("groupId", name = "groupId")]
@@ -71,6 +73,7 @@ data class ProxyEntity(
     var chainBean: ChainBean? = null,
     var nekoBean: NekoBean? = null,
     var configBean: ConfigBean? = null,
+    var tunnelBean: TunnelBean? = null,
 ) : Serializable() {
 
     companion object {
@@ -90,6 +93,8 @@ data class ProxyEntity(
         const val TYPE_TUIC = 20
         const val TYPE_MIERU = 21
         const val TYPE_ANYTLS = 22
+        const val TYPE_DNSCAT2 = 23
+        const val TYPE_SSHUTTLE = 24
 
         const val TYPE_CONFIG = 998
         const val TYPE_NEKO = 999
@@ -177,6 +182,7 @@ data class ProxyEntity(
             TYPE_CHAIN -> chainBean = KryoConverters.chainDeserialize(byteArray)
             TYPE_NEKO -> nekoBean = KryoConverters.nekoDeserialize(byteArray)
             TYPE_CONFIG -> configBean = KryoConverters.configDeserialize(byteArray)
+            TYPE_DNSCAT2, TYPE_SSHUTTLE -> tunnelBean = KryoConverters.tunnelDeserialize(byteArray)
         }
     }
 
@@ -195,6 +201,8 @@ data class ProxyEntity(
         TYPE_TUIC -> "TUIC"
         TYPE_SHADOWTLS -> "ShadowTLS"
         TYPE_ANYTLS -> "AnyTLS"
+        TYPE_DNSCAT2 -> "DNScat2"
+        TYPE_SSHUTTLE -> "sshuttle"
         TYPE_CHAIN -> chainName
         TYPE_NEKO -> nekoBean!!.displayType()
         TYPE_CONFIG -> configBean!!.displayType()
@@ -223,6 +231,7 @@ data class ProxyEntity(
             TYPE_CHAIN -> chainBean
             TYPE_NEKO -> nekoBean
             TYPE_CONFIG -> configBean
+            TYPE_DNSCAT2, TYPE_SSHUTTLE -> tunnelBean
             else -> error("Undefined type $type")
         } ?: error("Null ${displayType()} profile")
     }
@@ -241,6 +250,7 @@ data class ProxyEntity(
             is ShadowTLSBean -> false
             is NekoBean -> false
             is ConfigBean -> false
+            is TunnelBean -> false
             else -> true
         }
     }
@@ -360,8 +370,17 @@ data class ProxyEntity(
         chainBean = null
         configBean = null
         nekoBean = null
+        tunnelBean = null
 
         when (bean) {
+            is TunnelBean -> {
+                type = when (bean.kind) {
+                    TunnelBean.DNSCAT2 -> TYPE_DNSCAT2
+                    TunnelBean.SSHUTTLE -> TYPE_SSHUTTLE
+                    else -> error("Unknown embedded tunnel")
+                }
+                tunnelBean = bean
+            }
             is SOCKSBean -> {
                 type = TYPE_SOCKS
                 socksBean = bean
@@ -471,11 +490,13 @@ data class ProxyEntity(
                 TYPE_ANYTLS -> AnyTLSSettingsActivity::class.java
                 TYPE_CHAIN -> ChainSettingsActivity::class.java
                 TYPE_CONFIG -> ConfigSettingActivity::class.java
+                TYPE_DNSCAT2, TYPE_SSHUTTLE -> TunnelSettingsActivity::class.java
                 else -> throw IllegalArgumentException()
             }
         ).apply {
             putExtra(ProfileSettingsActivity.EXTRA_PROFILE_ID, id)
             putExtra(ProfileSettingsActivity.EXTRA_IS_SUBSCRIPTION, isSubscription)
+            if (type == TYPE_SSHUTTLE) putExtra("tunnelKind", TunnelBean.SSHUTTLE)
         }
     }
 

@@ -424,6 +424,11 @@ class ConfigurationFragment @JvmOverloads constructor(
             R.id.action_new_ssh -> {
                 startActivity(Intent(requireActivity(), SSHSettingsActivity::class.java))
             }
+            R.id.action_new_dnscat2, R.id.action_new_sshuttle -> {
+                startActivity(Intent(requireActivity(), moe.matsuri.nb4a.proxy.tunnel.TunnelSettingsActivity::class.java).apply {
+                    putExtra("tunnelKind", if (item.itemId == R.id.action_new_sshuttle) 1 else 0)
+                })
+            }
 
             R.id.action_new_wg -> {
                 startActivity(Intent(requireActivity(), WireGuardSettingsActivity::class.java))

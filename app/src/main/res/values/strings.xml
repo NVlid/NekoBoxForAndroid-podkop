@@ -235,6 +235,16 @@
     <string name="action_anytls" translatable="false">AnyTLS</string>
     <string name="action_hysteria" translatable="false">Hysteria</string>
     <string name="action_ssh" translatable="false">SSH</string>
+    <string name="action_dnscat2" translatable="false">DNScat2</string>
+    <string name="action_sshuttle" translatable="false">sshuttle</string>
+    <string name="embedded_tunnel">Embedded tunnel · TCP only</string>
+    <string name="dnscat2_info">Embedded dnscat2 outbound. Requires the NekoBox companion on your server, not the standard interactive Ruby server. Server address/port is the DNS resolver (or companion in direct mode). Empty domain enables direct mode. UDP is not supported.</string>
+    <string name="sshuttle_info">Embedded sshuttle mux over an SSH exec session, not SSH port forwarding. Requires Python 3 and sshuttle 1.3.2 on the remote server. No root or Python is needed on Android. Paste the trusted SSH host public key (ssh-ed25519 …); verification is mandatory. UDP and automatic subnet discovery are not supported; use NekoBox routing rules.</string>
+    <string name="tunnel_domain">Tunnel domain (empty for direct mode)</string>
+    <string name="tunnel_psk">Pre-shared secret (required)</string>
+    <string name="tunnel_records">DNS records: TXT, CNAME, MX, A, AAAA</string>
+    <string name="tunnel_delay">Idle polling delay, ms (50–60000)</string>
+    <string name="tunnel_python">Remote Python executable</string>
     <string name="action_wireguard" translatable="false">WireGuard</string>
     <string name="action_tuic" translatable="false">TUIC</string>
     <string name="proxy_chain">Proxy Chain</string>

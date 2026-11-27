@@ -3,6 +3,9 @@ package libcore
 import (
 	"context"
 
+	"libcore/dnscat2"
+	"libcore/sshuttle"
+
 	"github.com/sagernet/sing-box/adapter"
 	boxCertificate "github.com/sagernet/sing-box/adapter/certificate"
 	"github.com/sagernet/sing-box/adapter/endpoint"
@@ -76,6 +79,8 @@ func nekoboxAndroidOutboundRegistry() *outbound.Registry {
 	trojan.RegisterOutbound(registry)
 	tor.RegisterOutbound(registry)
 	ssh.RegisterOutbound(registry)
+	dnscat2.RegisterOutbound(registry)
+	sshuttle.RegisterOutbound(registry)
 	shadowtls.RegisterOutbound(registry)
 	vless.RegisterOutbound(registry)
 	anytls.RegisterOutbound(registry)

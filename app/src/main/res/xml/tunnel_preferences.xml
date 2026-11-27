@@ -1,0 +1,20 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Preference app:key="tunnelInfo" app:selectable="false" app:title="@string/embedded_tunnel" />
+    <EditTextPreference app:key="name" app:title="@string/profile_name" app:useSimpleSummaryProvider="true" />
+    <EditTextPreference app:key="serverAddress" app:title="@string/server_address" app:useSimpleSummaryProvider="true" />
+    <EditTextPreference app:key="serverPort" app:title="@string/server_port" app:useSimpleSummaryProvider="true" />
+    <PreferenceCategory app:key="dnsCategory" app:title="@string/action_dnscat2">
+        <EditTextPreference app:key="domain" app:title="@string/tunnel_domain" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="secret" app:title="@string/tunnel_psk" app:dialogLayout="@layout/layout_password_dialog" />
+        <EditTextPreference app:key="recordTypes" app:title="@string/tunnel_records" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="delay" app:title="@string/tunnel_delay" app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory app:key="sshCategory" app:title="@string/action_sshuttle">
+        <EditTextPreference app:key="username" app:title="@string/username" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="password" app:title="@string/password" app:dialogLayout="@layout/layout_password_dialog" />
+        <EditTextPreference app:key="privateKey" app:title="@string/ssh_private_key" />
+        <EditTextPreference app:key="privateKeyPassphrase" app:title="@string/ssh_private_key_passphrase" app:dialogLayout="@layout/layout_password_dialog" />
+        <EditTextPreference app:key="hostKey" app:title="@string/ssh_public_key" app:useSimpleSummaryProvider="true" />
+        <EditTextPreference app:key="python" app:title="@string/tunnel_python" app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

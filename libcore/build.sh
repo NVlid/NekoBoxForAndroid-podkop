@@ -19,6 +19,9 @@ fi
 # Reconcile go.mod/go.sum with the sing-box 1.14 line before binding.
 go mod tidy || exit 1
 
+# Compile and exercise registered adapters before the expensive mobile bind.
+go test -ldflags='-checklinkname=0' ./dnscat2 ./sshuttle || exit 1
+
 # podkop-engine build tags:
 #   with_gvisor   tun gVisor stack
 #   with_quic     QUIC transports (hysteria/tuic DNS, v2ray-quic)

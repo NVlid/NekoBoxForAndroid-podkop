@@ -29,11 +29,18 @@ import io.nekohasekai.sagernet.ktx.KryosKt;
 import io.nekohasekai.sagernet.ktx.Logs;
 import moe.matsuri.nb4a.proxy.config.ConfigBean;
 import moe.matsuri.nb4a.proxy.neko.NekoBean;
+import moe.matsuri.nb4a.proxy.tunnel.TunnelBean;
 import moe.matsuri.nb4a.utils.JavaUtil;
 
 public class KryoConverters {
 
     private static final byte[] NULL = new byte[0];
+
+    @TypeConverter
+    public static TunnelBean tunnelDeserialize(byte[] bytes) {
+        if (JavaUtil.isEmpty(bytes)) return null;
+        return deserialize(new TunnelBean(), bytes);
+    }
 
     @TypeConverter
     public static byte[] serialize(Serializable bean) {

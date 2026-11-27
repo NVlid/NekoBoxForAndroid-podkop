@@ -11,6 +11,7 @@ go 1.25.5
 // keeps everything consistent.
 
 require (
+	github.com/NVlid/NekoBoxForAndroid-podkop/dnscat2 v0.0.0
 	filippo.io/age v1.3.1
 	github.com/anthropics/anthropic-sdk-go v1.26.0
 	github.com/anytls/sing-anytls v0.0.11
@@ -214,6 +215,8 @@ require (
 replace github.com/matsuridayo/libneko => ../../libneko
 
 replace github.com/sagernet/sing-box => ../../sing-box
+
+replace github.com/NVlid/NekoBoxForAndroid-podkop/dnscat2 => ../dnscat2
 
 // The podkop-engine forks: keep the same replacements as the extended core.
 // (replace directives in non-main modules are ignored, so they must be

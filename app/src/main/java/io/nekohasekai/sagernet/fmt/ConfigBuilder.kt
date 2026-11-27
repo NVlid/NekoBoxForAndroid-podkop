@@ -32,6 +32,8 @@ import moe.matsuri.nb4a.plugin.Plugins
 import moe.matsuri.nb4a.proxy.anytls.AnyTLSBean
 import moe.matsuri.nb4a.proxy.anytls.buildSingBoxOutboundAnyTLSBean
 import moe.matsuri.nb4a.proxy.config.ConfigBean
+import moe.matsuri.nb4a.proxy.tunnel.TunnelBean
+import moe.matsuri.nb4a.proxy.tunnel.buildTunnelOutbound
 import moe.matsuri.nb4a.proxy.shadowtls.ShadowTLSBean
 import moe.matsuri.nb4a.proxy.shadowtls.buildSingBoxOutboundShadowTLSBean
 import moe.matsuri.nb4a.utils.JavaUtil.gson
@@ -362,6 +364,7 @@ fun buildConfig(
                     // internal outbound
 
                     currentOutbound = when (bean) {
+                        is TunnelBean -> buildTunnelOutbound(bean)
                         is ConfigBean -> CustomSingBoxOption(bean.config)
 
                         is ShadowTLSBean -> // before StandardV2RayBean

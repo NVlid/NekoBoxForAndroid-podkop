@@ -533,4 +533,12 @@
 <string name="ws_path">Путь к WebSocket</string>
 <string name="xtls_flow">Flow (подпротокол VLESS)</string>
 <string name="yes">Да</string>
+<string name="embedded_tunnel">Встроенный туннель · только TCP</string>
+<string name="dnscat2_info">Встроенный outbound dnscat2. На сервере нужен companion NekoBox, а не стандартный интерактивный Ruby-сервер. Адрес/порт сервера — DNS-резолвер (или companion в прямом режиме). Пустой домен включает прямой режим. UDP не поддерживается.</string>
+<string name="sshuttle_info">Встроенный мультиплексор sshuttle через SSH exec, а не SSH port forwarding. На сервере нужны Python 3 и sshuttle 1.3.2. Root и Python на Android не нужны. Вставьте проверенный публичный ключ SSH-сервера (ssh-ed25519 …); проверка обязательна. UDP и автоматическое обнаружение подсетей не поддерживаются; используйте маршруты NekoBox.</string>
+<string name="tunnel_domain">Домен туннеля (пусто — прямой режим)</string>
+<string name="tunnel_psk">Общий секрет PSK (обязательно)</string>
+<string name="tunnel_records">DNS-записи: TXT, CNAME, MX, A, AAAA</string>
+<string name="tunnel_delay">Период опроса в простое, мс (50–60000)</string>
+<string name="tunnel_python">Путь к Python на сервере</string>
 </resources>

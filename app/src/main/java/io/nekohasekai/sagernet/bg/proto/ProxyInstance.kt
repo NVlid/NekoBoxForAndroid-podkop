@@ -8,6 +8,8 @@ import io.nekohasekai.sagernet.ktx.Logs
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import kotlinx.coroutines.runBlocking
 import moe.matsuri.nb4a.utils.JavaUtil
+import org.json.JSONObject
+import org.json.JSONArray
 
 class ProxyInstance(profile: ProxyEntity, var service: BaseService.Interface? = null) :
     BoxInstance(profile) {
@@ -24,9 +26,22 @@ class ProxyInstance(profile: ProxyEntity, var service: BaseService.Interface? = 
         super.buildConfig()
         lastSelectorGroupId = super.config.selectorGroupId
         //
-        if (notTmp) Logs.d(config.config)
+        if (notTmp) Logs.d(configForLog(config.config))
         if (notTmp && BuildConfig.DEBUG) Logs.d(JavaUtil.gson.toJson(config.trafficMap))
     }
+
+    private fun configForLog(raw: String): String = runCatching {
+        val sensitive = setOf("secret", "password", "private_key", "private_key_passphrase")
+        fun redact(value: Any?) {
+            when (value) {
+                is JSONObject -> value.keys().asSequence().toList().forEach { key ->
+                    if (key in sensitive) value.put(key, "<redacted>") else redact(value.opt(key))
+                }
+                is JSONArray -> (0 until value.length()).forEach { redact(value.opt(it)) }
+            }
+        }
+        JSONObject(raw).apply { redact(this) }.toString(2)
+    }.getOrDefault("<configuration omitted>")
 
     // only use this in temporary instance
     fun buildConfigTmp() {
