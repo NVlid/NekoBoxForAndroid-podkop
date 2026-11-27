@@ -496,7 +496,7 @@ data class ProxyEntity(
         ).apply {
             putExtra(ProfileSettingsActivity.EXTRA_PROFILE_ID, id)
             putExtra(ProfileSettingsActivity.EXTRA_IS_SUBSCRIPTION, isSubscription)
-            if (type == TYPE_SSHUTTLE) putExtra("tunnelKind", TunnelBean.SSHUTTLE)
+            if (this@ProxyEntity.type == TYPE_SSHUTTLE) putExtra("tunnelKind", TunnelBean.SSHUTTLE)
         }
     }
 

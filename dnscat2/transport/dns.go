@@ -107,6 +107,9 @@ func (c *Codec) BuildQuery(id uint16, recordType uint16, payload []byte) (*dns.M
 	message.Id = id
 	message.RecursionDesired = true
 	message.Question = []dns.Question{{Name: name, Qtype: recordType, Qclass: dns.ClassINET}}
+	// A responses carry many numbered records and can exceed legacy 512-byte
+	// UDP DNS. Advertise an IPv6-safe UDP size to recursive resolvers.
+	message.SetEdns0(1232, false)
 	return message, nil
 }
 
@@ -156,6 +159,9 @@ func (c *Codec) BuildResponse(query *dns.Msg, payload []byte) (*dns.Msg, error) 
 	response.SetReply(query)
 	response.Authoritative = true
 	response.RecursionAvailable = true
+	if query.IsEdns0() != nil {
+		response.SetEdns0(1232, false)
+	}
 	header := dns.RR_Header{Name: question.Name, Rrtype: question.Qtype, Class: dns.ClassINET, Ttl: 60}
 
 	switch question.Qtype {

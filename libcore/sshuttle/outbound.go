@@ -39,15 +39,16 @@ func RegisterOutbound(registry *outbound.Registry) {
 
 type Outbound struct {
 	outbound.Adapter
-	dialer    N.Dialer
-	server    M.Socksaddr
-	config    *ssh.ClientConfig
-	python    string
-	connectMu sync.Mutex
-	mu        sync.Mutex
-	current   *mux.Mux
-	lifetime  context.Context
-	cancel    context.CancelFunc
+	dialer     N.Dialer
+	server     M.Socksaddr
+	config     *ssh.ClientConfig
+	python     string
+	connectMu  sync.Mutex
+	mu         sync.Mutex
+	current    *mux.Mux
+	generation uint64
+	lifetime   context.Context
+	cancel     context.CancelFunc
 }
 
 func NewOutbound(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options Options) (adapter.Outbound, error) {
@@ -109,6 +110,7 @@ func (o *Outbound) connect(ctx context.Context) (*mux.Mux, error) {
 	defer o.connectMu.Unlock()
 	o.mu.Lock()
 	current := o.current
+	generation := o.generation
 	o.mu.Unlock()
 	if current != nil && current.Alive() {
 		return current, nil
@@ -163,12 +165,18 @@ func (o *Outbound) connect(ctx context.Context) (*mux.Mux, error) {
 		client.Close()
 		return nil, errors.New("sshuttle: server startup failed; install Python 3 and sshuttle 1.3.2 and check SSH exec permission")
 	}
-	if ctx.Err() != nil || o.lifetime.Err() != nil {
+	// Stop the handshake timeout callback before publishing a live mux.
+	if !stop() || ctx.Err() != nil || o.lifetime.Err() != nil {
 		m.Close()
 		return nil, context.Canceled
 	}
 	_ = conn.SetDeadline(time.Time{})
 	o.mu.Lock()
+	if generation != o.generation || o.lifetime.Err() != nil {
+		o.mu.Unlock()
+		m.Close()
+		return nil, errors.New("sshuttle: network changed during connection establishment")
+	}
 	o.current = m
 	o.mu.Unlock()
 	succeeded = true
@@ -195,6 +203,7 @@ func (o *Outbound) Start(stage adapter.StartStage, scope *adapter.Scope) error {
 }
 func (o *Outbound) InterfaceUpdated(ctx context.Context) {
 	o.mu.Lock()
+	o.generation++
 	current := o.current
 	o.current = nil
 	o.mu.Unlock()
